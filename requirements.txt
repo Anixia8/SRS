@@ -1,0 +1,10 @@
+streamlit
+pandas
+pydantic
+typing_extensions
+langchain
+langchain-openai
+langchain-google-vertexai
+google-cloud-aiplatform
+fastapi
+uvicorn[standard]
