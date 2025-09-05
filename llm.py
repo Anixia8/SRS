@@ -1,7 +1,7 @@
 import os
 from pydantic import BaseModel, Field
 from typing_extensions import Literal,List
-#from langchain.chat_models import init_chat_model
+from langchain.chat_models import init_chat_model
 from fastapi import FastAPI, UploadFile, HTTPException
 from dataclasses import dataclass, asdict
 from typing import Optional
@@ -28,6 +28,18 @@ def to_mapping(items):
             data = m.dict(exclude={"number_id"})
         out[m.number_id] = data
     return out
+
+def classify_alert(alert):
+    prompt=f"""Sei un esperto di sicurezza informatica.
+    Dato un alert devi deciderere se è un caso 'Falso_positivo' o 'Vera_minaccia' fornendo anche una spiegazione concisa sulla motivazione della tua scelta.
+
+    Alert: 
+    {alert}
+    """
+    model = init_chat_model("gemini", model_provider="ollama")
+
+    model_output = model.with_structured_output(RequiredOutput).invoke(prompt)
+    return model_output
 
 def mock_llm(elemento):
     cl = random.choice(
@@ -181,7 +193,7 @@ You MUST return the required output for ALL alerts in the list
     #model = init_chat_model("mistral", model_provider="ollama")
 
     model = ChatVertexAI(
-        model=os.getenv("LLM_MODEL", "gemini-1.5-flash"),
+        model=os.getenv("LLM_MODEL", "gemini-1.5-flash-002"),
         location=os.getenv("VERTEX_LOCATION", "europe-west1"),
         temperature=0,
     )

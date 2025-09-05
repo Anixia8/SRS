@@ -1,4 +1,4 @@
-from llm import mock_llm,classify_all_alerts
+from llm import mock_llm,classify_alert,classify_all_alerts
 
 def classify_alerts(alerts_list):
 
