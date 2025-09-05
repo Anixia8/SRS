@@ -22,11 +22,12 @@ def to_mapping(items):
     out = {}
     for m in items:
         # escludo number_id dal valore
-        if hasattr(m, "model_dump"):  # Pydantic v2
+        if hasattr(m, "model_dump"):   # Pydantic v2
             data = m.model_dump(exclude={"number_id"})
-        else:                         # Pydantic v1
+        else:                          # Pydantic v1
             data = m.dict(exclude={"number_id"})
-        out[m.number_id] = data
+        # forza la chiave a int, anche se il modello restituisce "13"
+        out[int(m.number_id)] = data
     return out
 
 def classify_alert(alert):
@@ -201,15 +202,29 @@ You MUST return the required output for ALL alerts in the list
     model_output = model.with_structured_output(RequiredOutputList).invoke(prompt)
     classification_list=model_output.classification_list
 
-    classification_dict=to_mapping(classification_list)
+    classification_dict = to_mapping(classification_list)
 
-    print(classification_dict)
-    new_alert_list=[]
+    new_alert_list = []
+    missing = []
+
     for alert in alert_list:
-        temp=alert|classification_dict[alert['number_id']]
-        temp.pop("number_id")
+        nid = int(alert["number_id"])   # forza sempre a int
+        if nid in classification_dict:
+            temp = {**alert, **classification_dict[nid]}
+        else:
+            missing.append(nid)
+            temp = {
+                **alert,
+                "Classification": "uncertain",
+                "Explanation": "Mancata classificazione dal modello"
+            }
+        temp.pop("number_id", None)
         new_alert_list.append(temp)
-    print(new_alert_list)
+
+    if missing:
+        print(f"WARN: mancanti nel risultato del modello: {missing}")
+
     return new_alert_list
+
 
 
