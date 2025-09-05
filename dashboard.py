@@ -121,7 +121,9 @@ with tab1:
             )
 
         except Exception as e:
-            st.error(f"Errore durante la classificazione: {e}")
+            #st.error(f"Errore durante la classificazione: {e}")
+            import traceback
+            st.exception(e) 
 
     else:
         st.info("Carica un file JSON per iniziare.")
