@@ -5,7 +5,7 @@ from langchain.chat_models import init_chat_model
 from fastapi import FastAPI, UploadFile, HTTPException
 from dataclasses import dataclass, asdict
 from typing import Optional
-
+from langchain_google_vertexai import ChatVertexAI
 
 import random
 
@@ -28,6 +28,8 @@ def to_mapping(items):
             data = m.dict(exclude={"number_id"})
         out[m.number_id] = data
     return out
+
+
 
 def classify_alert(alert):
     prompt=f"""Sei un esperto di sicurezza informatica.
@@ -190,7 +192,13 @@ Alert IDS: “DNS tunneling detected”.
 
 You MUST return the required output for ALL alerts in the list
     """
-    model = init_chat_model("mistral", model_provider="ollama")
+    #model = init_chat_model("mistral", model_provider="ollama")
+
+    model = ChatVertexAI(
+        model=os.getenv("LLM_MODEL", "gemini-1.5-flash"),
+        location=os.getenv("VERTEX_LOCATION", "europe-west1"),
+        temperature=0,
+    )
 
     model_output = model.with_structured_output(RequiredOutputList).invoke(prompt)
     classification_list=model_output.classification_list
