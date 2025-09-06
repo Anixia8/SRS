@@ -6,7 +6,7 @@ from data_prep import readJson
 from classifier import classify_alerts
 from random_response import response_generator
 from normalizer import normalize_records, NORMALIZED_FIELDS
-form llm_chat import answer_question
+from llm_chat import answer_question
 
 st.set_page_config(page_title="LLM4SOC Dashboard", layout="wide")
 
