@@ -72,12 +72,10 @@ with tab1:
             if selected_class:
                 df_filtered = df_filtered[df_filtered["Classification"].isin(selected_class)]
 
-            if "priority" in df_filtered.columns:
-                min_prio, max_prio = int(df_filtered["priority"].min()), int(df_filtered["priority"].max())
-                prio_range = st.sidebar.slider("Filtra per priorità", min_prio, max_prio, (min_prio, max_prio))
-                df_filtered = df_filtered[
-                    (df_filtered["priority"] >= prio_range[0]) & (df_filtered["priority"] <= prio_range[1])
-                ]
+            if "priority" in df.columns:
+                _prio = pd.to_numeric(df["priority"], errors="coerce")
+                if _prio.notna().sum() == 0:
+                    df.drop(columns=["priority"], inplace=True)
 
             if "source_ip" in df_filtered.columns:
                 selected_ips = st.sidebar.multiselect("Filtra per IP sorgente", df_filtered["source_ip"].unique())
