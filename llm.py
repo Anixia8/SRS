@@ -13,6 +13,8 @@ class RequiredOutput(BaseModel):
     Classification:Literal["false positive","real threat"] = Field(description="La classificazione dell'alert decidere se è un real threat o un falso positivo")
     Explanation:str = Field(description = "Spiegazione del perchè è stata data quella classificazione, e cosa ti ha spintyo a classificarlo in quel modo.")
     number_id:int= Field(description="number_id associato all'alert fornito")
+    NextSteps: list[str] = Field(default_factory=list, description="Azioni consigliate per il triage")
+    Confidence: float = Field(default=0.0, ge=0.0, le=1.0, description="Confidenza 0..1")   
 class RequiredOutputList(BaseModel):
     classification_list: List[RequiredOutput] =Field(description="Una lista di RequiredOutput con all'interno la classificazione di ognuno degli alert e la propria spiegazione. Ongi alert è associato al proprio number_id")
 
@@ -62,6 +64,9 @@ def classify_all_alerts(alert_list):
 
     prompt=f"""Sei un esperto di sicurezza informatica.
     Dato una lista di alert devi deciderere se è un caso 'Falso_positivo' o 'Vera_minaccia' fornendo anche una spiegazione sulla motivazione della tua scelta indicando i le cose che ti hanno portato a fornire quella classificazione.
+    Per ogni alert restituisci anche:
+    - NextSteps: 1-3 azioni pratiche per il triage (es. blocco IP, richiesta PCAP, correlazione con EDR).
+    - Confidence: un valore tra 0 e 1 sulla fiducia della tua classificazione.
     Per fornire una classificazione di un alert teni in considerazione anche gli alter che potrebbero precederlo o venire dopo.
     Inoltre fai particolarmente attenzione ai seguenti attacchi:
     1. Network scans
