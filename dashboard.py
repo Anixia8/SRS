@@ -5,6 +5,7 @@ import tempfile, os
 from data_prep import readJson
 from classifier import classify_alerts
 from random_response import response_generator
+from normalizer import normalize_records, NORMALIZED_FIELDS
 
 st.set_page_config(page_title="LLM4SOC Dashboard", layout="wide")
 
@@ -38,6 +39,24 @@ with tab1:
 
 
             st.success(f"✅ File caricato con {len(df)} alert classificati.")
+
+            # normalizza i log originali
+            df_norm = pd.DataFrame(normalize_records(data))
+
+            # seleziona SOLO i campi dell'LLM che vuoi mostrare
+            LLM_WHITELIST = ["Classification", "Explanation", "NextSteps", "Confidence"]
+            df_llm = pd.DataFrame(st.session_state.classified_data)
+            llm_cols = [c for c in LLM_WHITELIST if c in df_llm.columns]
+
+            # unisci per posizione (stesso ordine con cui hai passato i log all'LLM)
+            m = min(len(df_norm), len(df_llm))
+            df = pd.concat(
+                [df_norm.iloc[:m].reset_index(drop=True), df_llm.iloc[:m][llm_cols].reset_index(drop=True)],
+                axis=1
+            )
+
+    # ------------------------
+
 
             # ------------------------
             # Sidebar filters
