@@ -1,6 +1,7 @@
 import json
 from langchain_google_vertexai import ChatVertexAI
 import streamlit as st
+import os
 
 def answer_question(question: str) -> str:
     """Risponde alla domanda usando gli alert presenti in session_state.alerts_for_chat."""
