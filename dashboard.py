@@ -6,6 +6,7 @@ from data_prep import readJson
 from classifier import classify_alerts
 from random_response import response_generator
 from normalizer import normalize_records, NORMALIZED_FIELDS
+form llm_chat import answer_question
 
 st.set_page_config(page_title="LLM4SOC Dashboard", layout="wide")
 
@@ -36,7 +37,7 @@ with tab1:
 
             # Usa sempre gli stessi risultati già salvati
             df = pd.DataFrame(st.session_state.classified_data)
-
+            
 
             st.success(f"✅ File caricato con {len(df)} alert classificati.")
 
@@ -55,6 +56,8 @@ with tab1:
                 axis=1
             )
 
+            st.session_state.alerts_for_chat = df.to_dict(orient="records") 
+    
     # ------------------------
 
 
@@ -175,6 +178,6 @@ with tab2:
                 st.markdown(prompt)
 
             with st.chat_message("assistant"):
-                response = st.write_stream(response_generator()) # Assumi che response_generator() ritorni uno stream
-            
-        st.session_state.messages.append({"role": "assistant", "content": response})
+                answer = answer_question(prompt)
+                st.markdown(answer)
+            st.session_state.messages.append({"role": "assistant", "content": answer})

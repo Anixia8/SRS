@@ -67,7 +67,7 @@ def classify_all_alerts(alert_list):
     Per ogni alert restituisci anche:
     - NextSteps: 1-3 azioni pratiche per il triage (es. blocco IP, richiesta PCAP, correlazione con EDR).
     - Confidence: un valore tra 0 e 1 sulla fiducia della tua classificazione.
-    Per fornire una classificazione di un alert teni in considerazione anche gli alter che potrebbero precederlo o venire dopo.
+    Per fornire una classificazione di un alert tieni in considerazione anche gli alert che potrebbero precederlo o venire dopo.
     Inoltre fai particolarmente attenzione ai seguenti attacchi:
     1. Network scans
 
