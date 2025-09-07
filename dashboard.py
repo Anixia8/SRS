@@ -8,6 +8,11 @@ from random_response import response_generator
 from normalizer import normalize_records, NORMALIZED_FIELDS
 from llm_chat import answer_question
 
+def _reset_upload_state():
+    # pulisci tutto ciò che deriva dall’upload precedente
+    for k in ("classified_data", "alerts_for_chat", "raw_alerts_data"):
+        st.session_state.pop(k, None)
+
 st.set_page_config(page_title="LLM4SOC Dashboard", layout="wide")
 
 tab1, tab2 = st.tabs(["📊 Dashboard", "💬 ChatBot"])
@@ -18,7 +23,18 @@ with tab1:
     # ------------------------
     # Upload file
     # ------------------------
-    uploaded_file = st.file_uploader("Carica il file degli alert (JSON Lines)", type=["json", "jsonl"])
+    uploaded_file = st.file_uploader(
+        "Carica il file degli alert (JSON Lines)",
+        type=["json", "jsonl"],
+        key="alerts_file",
+        on_change=_reset_upload_state   # <- pulisce quando cambi o rimuovi il file
+    )
+
+    if uploaded_file is None:
+        _reset_upload_state()   # safety net: se l’utente ha tolto il file, azzera tutto
+        st.info("Carica un file JSON per iniziare.")
+        st.stop()               # interrompe il rendering del resto della tab
+
 
     if uploaded_file is not None:
         try:
