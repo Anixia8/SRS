@@ -9,7 +9,7 @@ from normalizer import normalize_records, NORMALIZED_FIELDS
 from llm_chat import answer_question
 
 def _reset_upload_state():
-    # pulisci tutto ciò che deriva dall’upload precedente
+    # pulisce tutto ciò che deriva dall’upload precedente
     for k in ("classified_data", "alerts_for_chat", "raw_alerts_data"):
         st.session_state.pop(k, None)
 
@@ -18,7 +18,7 @@ st.set_page_config(page_title="LLM4SOC Dashboard", layout="wide")
 tab1, tab2 = st.tabs(["📊 Dashboard", "💬 ChatBot"])
 
 with tab1:
-    st.title("🔎 LLM4SOC – IDS Alert Triage Assistant")
+    st.title("LLM4SOC – IDS Alert Triage Assistant")
 
     # ------------------------
     # Upload file
@@ -31,16 +31,16 @@ with tab1:
     )
 
     if uploaded_file is None:
-        _reset_upload_state()   # safety net: se l’utente ha tolto il file, azzera tutto
+        _reset_upload_state()   # se l’utente ha tolto il file, azzera tutto
         st.info("Carica un file JSON per iniziare.")
-        st.stop()               # interrompe il rendering del resto della tab
+        st.stop()               
 
 
     if uploaded_file is not None:
         try:
             # Salviamo temporaneamente il file caricato
             
-            raw = uploaded_file.getvalue()  # non usare .read() due volte
+            raw = uploaded_file.getvalue()  
             with tempfile.NamedTemporaryFile(dir="/tmp", suffix=".jsonl", delete=False) as f:
                 f.write(raw)
                 temp_path = f.name
@@ -55,17 +55,17 @@ with tab1:
             df = pd.DataFrame(st.session_state.classified_data)
             
 
-            st.success(f"✅ File caricato con {len(df)} alert classificati.")
+            st.success(f"File caricato con {len(df)} alert classificati.")
 
             # normalizza i log originali
             df_norm = pd.DataFrame(normalize_records(data))
 
-            # seleziona SOLO i campi dell'LLM che vuoi mostrare
+            
             LLM_WHITELIST = ["Classification", "Explanation", "NextSteps", "Confidence"]
             df_llm = pd.DataFrame(st.session_state.classified_data)
             llm_cols = [c for c in LLM_WHITELIST if c in df_llm.columns]
 
-            # unisci per posizione (stesso ordine con cui hai passato i log all'LLM)
+            
             m = min(len(df_norm), len(df_llm))
             df = pd.concat(
                 [df_norm.iloc[:m].reset_index(drop=True), df_llm.iloc[:m][llm_cols].reset_index(drop=True)],
@@ -175,20 +175,20 @@ with tab2:
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Crea un contenitore per la cronologia della chat per gestirne lo scorrimento
-    chat_placeholder = st.container(height=380) # Puoi regolare l'altezza come preferisci
+    # Contenitore per la cronologia della chat
+    chat_placeholder = st.container(height=380)
 
     with chat_placeholder:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    # Sposta l'input della chat al di fuori del contenitore della cronologia dei messaggi
+   
     if prompt := st.chat_input("Fai una domanda"):
-        # Aggiungi immediatamente il messaggio dell'utente per visualizzarlo
+        
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        # Rigenera il contenitore con il nuovo messaggio dell'utente
+       
         with chat_placeholder:
             with st.chat_message("user"):
                 st.markdown(prompt)

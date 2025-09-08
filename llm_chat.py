@@ -9,14 +9,14 @@ def answer_question(question: str) -> str:
     if not alerts:
         return "Non ho ancora dati di alert in memoria. Carica un file nella tab Dashboard."
 
-    # Limita la dimensione del contesto per sicurezza
-    MAX_ALERTS = 300           # alza/abbassa in base al modello
-    MAX_JSON_CHARS = 120_000   # limite “hard” per il prompt
+    
+    MAX_ALERTS = 300           
+    MAX_JSON_CHARS = 120_000   
     subset = alerts[:MAX_ALERTS]
     context_json = json.dumps(subset, ensure_ascii=False)
 
     if len(context_json) > MAX_JSON_CHARS:
-        # taglio brutale, ma evita overflow
+        
         context_json = context_json[:MAX_JSON_CHARS] + " ... [TRUNCATED]"
 
     system_instructions = """Sei un analista SOC. Ti fornisco un elenco di alert (JSON) con campi:
@@ -42,6 +42,6 @@ Risposta:"""
         temperature=0,
     )
     resp = model.invoke(prompt)
-    # LangChain può restituire Message/AIMessage; gestiamo content/testo
+    
     text = getattr(resp, "content", None) or str(resp)
     return text

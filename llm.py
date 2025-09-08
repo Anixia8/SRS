@@ -19,16 +19,16 @@ class RequiredOutputList(BaseModel):
     classification_list: List[RequiredOutput] =Field(description="Una lista di RequiredOutput con all'interno la classificazione di ognuno degli alert e la propria spiegazione. Ongi alert è associato al proprio number_id")
 
 
-# funziona sia con Pydantic v1 che v2
+
 def to_mapping(items):
     out = {}
     for m in items:
-        # escludo number_id dal valore
-        if hasattr(m, "model_dump"):   # Pydantic v2
+       
+        if hasattr(m, "model_dump"):   
             data = m.model_dump(exclude={"number_id"})
-        else:                          # Pydantic v1
+        else:                         
             data = m.dict(exclude={"number_id"})
-        # forza la chiave a int, anche se il modello restituisce "13"
+      
         out[int(m.number_id)] = data
     return out
 
@@ -213,7 +213,7 @@ You MUST return the required output for ALL alerts in the list
     missing = []
 
     for alert in alert_list:
-        nid = int(alert["number_id"])   # forza sempre a int
+        nid = int(alert["number_id"])   
         if nid in classification_dict:
             temp = {**alert, **classification_dict[nid]}
         else:

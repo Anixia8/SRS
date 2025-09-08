@@ -1,4 +1,4 @@
-# normalizer.py
+
 import re
 from datetime import datetime, timezone
 
@@ -6,7 +6,7 @@ AUDIT_MSG_RE = re.compile(r"msg='([^']*)'")
 AUDIT_TYPE_RE = re.compile(r"\btype=([A-Z_]+)")
 AUDIT_ID_RE   = re.compile(r"audit\(\d+\.\d+:(\d+)\)")
 
-# solo i campi richiesti
+
 NORMALIZED_FIELDS = [
     "timestamp", "source_ip", "signature", "priority", "payload_summary", "detector"
 ]
